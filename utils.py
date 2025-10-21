@@ -1,13 +1,16 @@
-import re
-import hashlib
-import os
-import json
 import concurrent.futures
+import hashlib
+import json
+import os
+import re
+
+import faiss  # type: ignore
 import numpy as np
-import faiss
 import PyPDF2
-import openai
+from openai import OpenAI  # type: ignore
 from tqdm import tqdm
+
+client = OpenAI()
 
 # --- CONSTANTS ---
 PROMPT_V3 = """ 
@@ -158,13 +161,13 @@ def create_vector_store(chunks, base_folder="embeddings"):
 
 
 def get_embedding(chunk, model_name):
-    response = openai.embeddings.create(input=chunk, model=model_name)
+    response = client.embeddings.create(input=chunk, model=model_name)
     return response.data[0].embedding
 
 
 def retrieve_relevant_chunks(query, model_name, index, chunks, top_k=1):
     """Return the top_k chunks that are most relevant to the query."""
-    response = openai.embeddings.create(input=[query], model=model_name)
+    response = client.embeddings.create(input=[query], model=model_name)
     query_embedding = response.data[0].embedding
     query_vector = np.array([query_embedding], dtype="float32")
     _, indices = index.search(query_vector, top_k)
@@ -222,47 +225,3 @@ def prepare_messages(seg_data, step, embedding_model, faiss_index, text_chunks):
     ]
     return messages, relevant_chunks
 
-
-def prepare_finetune_data(json_file_path, embedding_model, faiss_index, text_chunks):
-    """
-    Prepare fine-tuning data for OpenAI from transcription segments.
-    Returns a list of dictionaries in the format required for OpenAI fine-tuning.
-    """
-    with open(json_file_path, "r") as f:
-        data = json.load(f)
-
-    finetune_data = []
-    for seg_id, seg_data in data["segments"].items():
-        # Get messages using existing prepare_messages function
-        messages, relevant_chunks = prepare_messages(
-            seg_data, "judgement", embedding_model, faiss_index, text_chunks
-        )
-
-        # Get the judgment token
-        judgment = seg_data.get("judgement", {})
-        rating = judgment.get("token", "0")
-
-        # Create the training example using PROMPT_RATING_2 and context
-        example = {
-            "messages": [
-                {"role": "system", "content": PROMPT_RATING_2},
-                {
-                    "role": "user",
-                    "content": build_rating_llm_prompt_2(
-                        seg_data["text"], relevant_chunks
-                    ),
-                },
-                {"role": "assistant", "content": rating},
-            ]
-        }
-        finetune_data.append(example)
-
-    return finetune_data
-
-
-def save_finetune_data(data, output_path):
-    """Save fine-tuning data to a JSONL file as required by OpenAI."""
-    with open(output_path, "w") as f:
-        for example in data:
-            json.dump(example, f)
-            f.write("\n")

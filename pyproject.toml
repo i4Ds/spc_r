@@ -1,0 +1,22 @@
+[project]
+name = "spc-r"
+version = "0.1.0"
+description = "Swiss Parliament Corpus correction workflow"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [
+    { name = "Vincenzo Timmel", email = "vincenzo.timmel@fhnw.ch" },
+]
+dependencies = [
+    "backoff>=2.2.1",
+    "faiss-cpu>=1.8.0.post1",
+    "numpy>=1.24",
+    "openai>=1.40.0",
+    "PyPDF2>=3.0.0",
+    "tqdm>=4.66",
+]
+
+[project.urls]
+Dataset = "https://huggingface.co/datasets/i4ds/spc_r"
+Paper = "https://arxiv.org/abs/2506.07726"

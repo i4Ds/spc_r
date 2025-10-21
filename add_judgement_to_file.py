@@ -1,15 +1,5 @@
 #!/usr/bin/env python3
-"""
-Usage:
-    python combine_corrected.py --original_file test.json --batch_input batch_input.jsonl --batch_results batch_results.jsonl [--output_file test_corrected.json]
-
-This script will:
-  1. Load the batch input JSONL file (the one that was submitted to OpenAI) and the batch results JSONL file.
-  2. For each submitted job, add the answer from the batch results (using custom_id) as a new key "judgement".
-  3. Load the original JSON file (with segments) and, assuming the order is the same as the batch input,
-     append each job’s "judgement" to the corresponding segment.
-  4. Save the updated JSON to a new file (e.g. test_corrected.json).
-"""
+"""Merge judgement batch results back into corrected transcription JSON files."""
 
 import argparse
 import json
@@ -34,7 +24,7 @@ def main():
     parser.add_argument("--original_file", help="Original JSON file with segments.")
     parser.add_argument(
         "--folder_original_files",
-        help="Folder containing original JSON files with segments and the batch jobs wioth the correction.",
+    help="Folder containing corrected JSON files with segments and the batch jobs with the judgement.",
     )
     args = parser.parse_args()
 

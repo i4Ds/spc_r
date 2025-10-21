@@ -3,10 +3,11 @@ import argparse
 import glob
 import json
 import os
-from tqdm import tqdm
+
 import backoff
-import openai
 import numpy as np
+from openai import APIError, APITimeoutError, OpenAI, RateLimitError  # type: ignore
+from tqdm import tqdm
 
 from utils import (
     extract_text_from_pdf,
@@ -17,12 +18,14 @@ from utils import (
 )
 
 
+client = OpenAI()
+
+
 # --- API CALLS: CORRECTION & JUDGEMENT (Synchronous Mode) ---
 @backoff.on_exception(
-    backoff.expo, (openai.RateLimitError, openai.APIError, openai.Timeout), max_time=60
+    backoff.expo, (RateLimitError, APIError, APITimeoutError), max_time=60
 )
 def chat_completion(messages, model, temperature):
-    client = openai.OpenAI()
     response = client.chat.completions.create(
         model=model, temperature=temperature, messages=messages
     )
@@ -30,12 +33,11 @@ def chat_completion(messages, model, temperature):
 
 
 @backoff.on_exception(
-    backoff.expo, (openai.RateLimitError, openai.APIError, openai.Timeout), max_time=60
+    backoff.expo, (RateLimitError, APIError, APITimeoutError), max_time=60
 )
 def chat_completetion_logprobs_to_normalized_probs(
     messages, model, temperature, top_logprobs=None, logprobs=None
 ):
-    client = openai.OpenAI()
     response = client.chat.completions.create(
         model=model,
         temperature=temperature,
