@@ -1,6 +1,6 @@
 # Swiss Parliament Corpus – Correction Toolkit
 
-This repository accompanies the [Swiss Parliament Corpus (SPC-R) dataset](https://huggingface.co/datasets/i4ds/spc_r) and the paper ["SPC-R: High-Precision Speech Corrections for Swiss Parliament Data"](https://arxiv.org/abs/2506.07726). It provides the scripts used to generate RAG-augmented correction prompts, submit OpenAI Batch jobs, and consolidate the returned corrections and quality judgements. The raw data is not shared in this repository, only the code.
+This repository accompanies the [Swiss Parliament Corpus (SPC-R) dataset](https://huggingface.co/datasets/i4ds/spc_r) and the paper [Swiss Parliaments Corpus Re-Imagined (SPC_R): Enhanced Transcription with RAG-based Correction and Predicted BLEU](https://arxiv.org/abs/2506.07726). It provides the scripts used to generate RAG-augmented correction prompts, submit OpenAI Batch jobs, and consolidate the returned corrections and quality judgements. The raw data is not shared in this repository, only the code.
 
 ## Idea
 The idea is to correct a weakly labeled transcription of a parliamentary discussion with an LLM, which receives as context semantically relevant chunks from a manually generated summary of it.
